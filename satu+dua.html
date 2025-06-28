@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Admin & Database</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      width: 90%;
+      max-width: 400px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      background: linear-gradient(to right, #7c3aed, #4f46e5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      transition: border-color 0.3s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    button {
+      width: 100%;
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #4338ca;
+    }
+    .logout-btn {
+      background-color: #e11d48;
+    }
+    .logout-btn:hover {
+      background-color: #be123c;
+    }
+    .form-section, .list-section {
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Form -->
+  <div class="card" id="login-page">
+    <h1>Login Database</h1>
+    <input type="password" id="password" placeholder="Masukkan password" onkeyup="if(event.keyCode === 13) login()">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- Panel -->
+  <div class="card" id="panel-page" style="display:none;">
+    <h1>Panel Nomor Buyer</h1>
+
+    <div class="form-section">
+      <input type="text" id="add-number" placeholder="Contoh: 6281234567890">
+      <button onclick="addUser()">Tambah Nomor</button>
+    </div>
+
+    <div class="list-section">
+      <h2 style="text-align:center;margin-top:10px;">Daftar Nomor</h2>
+      <button onclick="fetchUsers()">Muat Ulang Daftar</button>
+      <table id="user-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Nomor</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    const correctPassword = "112233";
+
+    function login() {
+      const pw = document.getElementById("password").value;
+      if (pw === correctPassword) {
+        document.getElementById("login-page").style.display = "none";
+        document.getElementById("panel-page").style.display = "block";
+        fetchUsers();
+      } else {
+        alert("Password salah!");
+      }
+    }
+
+    function logout() {
+      document.getElementById("panel-page").style.display = "none";
+      document.getElementById("login-page").style.display = "block";
+      document.getElementById("password").value = "";
+    }
+
+    function addUser() {
+      const input = document.getElementById("add-number").value.trim();
+      if (input === "") {
+        alert("Nomor tidak boleh kosong.");
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("buyers")) || [];
+      users.push(input);
+      localStorage.setItem("buyers", JSON.stringify(users));
+      document.getElementById("add-number").value = "";
+      fetchUsers();
+    }
+
+    function fetchUsers() {
+      const tableBody = document.getElementById("user-table").querySelector("tbody");
+      tableBody.innerHTML = "";
+      let users = JSON.parse(localStorage.getItem("buyers")) || [];
+      users.forEach((number, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${number}</td>
+          <td><button onclick="deleteUser(${index})">Hapus</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function deleteUser(index) {
+      let users = JSON.parse(localStorage.getItem("buyers")) || [];
+      users.splice(index, 1);
+      localStorage.setItem("buyers", JSON.stringify(users));
+      fetchUsers();
+    }
+  </script>
+</body>
+</html>
